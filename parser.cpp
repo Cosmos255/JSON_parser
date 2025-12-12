@@ -1,27 +1,17 @@
 #include <iostream>
+#include <unordered_map>
+#include <vector>
 #include <string>
-#include <fstream>
-#include <map>
+#include <ostream>
 #include "parser.h"
 
 
-void JsonParser::ReadFile(const std::string &filepath, std::string &output) {
-    std::ifstream file(filepath);
-    std::string line;
-
-    while(std::getline(file, line)) {
-        output.append(line);
+int main(int argc, char *argv[]){
+    if(argc < 2){
+        std::cerr<<"Please input a second argument for the input ifle";
+    }else{
+        std::string output = argv[1];
+        File(output);
     }
 }
 
-JsonValue JsonParser::ParsePrimitive(const std::string& text, text_it start, text_it end){
-
-}
-
-
-
-
-
-int main(){
-
-}
