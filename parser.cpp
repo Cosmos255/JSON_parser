@@ -6,12 +6,8 @@
 #include "parser.h"
 
 
-int main(int argc, char *argv[]){
-    if(argc < 2){
-        std::cerr<<"Please input a second argument for the input ifle";
-    }else{
-        std::string output = argv[1];
-        File(output);
-    }
+int main(){
+    Lexer("test.json");
+   // return 0;
 }
 
