@@ -2,8 +2,8 @@
 #include <cstdlib>
 #include <string>
 #include <vector>
+#include <variant>
 #include <fstream>
-
 
 using type_t = enum
 {
@@ -119,3 +119,31 @@ private:
 
 };
 
+
+struct JsonValue;
+
+using JsonArray = std::vector<JsonValue>;
+using JsonObject = JsonValue*;
+
+using Value = std::variant<int, double, bool, std::string, JsonArray, JsonObject>;
+
+struct JsonValue{
+    Value value;
+}
+
+
+using valkey = union{
+    double num;
+    bool bol;
+    std::string str;
+    std::vector<valkey> arr;
+}
+
+class Parser {
+    public:
+
+
+    private:
+
+
+}
