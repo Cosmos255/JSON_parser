@@ -121,23 +121,15 @@ private:
 
 
 struct JsonValue;
-
 using JsonArray = std::vector<JsonValue>;
-using JsonObject = JsonValue*;
-
+using JsonObject = std::vector<std::pair<std::string, JsonValue>>;
 using Value = std::variant<int, double, bool, std::string, JsonArray, JsonObject>;
 
 struct JsonValue{
     Value value;
-}
+};
 
-
-using valkey = union{
-    double num;
-    bool bol;
-    std::string str;
-    std::vector<valkey> arr;
-}
+JsonValue JsonRoot;
 
 class Parser {
     public:
