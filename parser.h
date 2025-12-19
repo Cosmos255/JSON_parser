@@ -4,6 +4,7 @@
 #include <vector>
 #include <variant>
 #include <fstream>
+#include <stack>
 
 using type_t = enum
 {
@@ -31,7 +32,7 @@ std::vector<Token> Tokens;
 
 
 class Lexer {
-public:
+public: 
     Lexer(const std::string& filename): in(filename),line(1),col(1){
         if(!in){
             std::cerr<<"No existing files found";
@@ -43,11 +44,13 @@ public:
 
     void Tokenizer(){
         while(peek() != EOF){
-            Token token_t;
+            //Token token_t;
 
             switch (peek()){
             case '{': Tokens.push_back({L_Brace, "{"}); advance(); break;
             case '}': Tokens.push_back({R_Brace, "}"}); advance(); break;
+            case '[': Tokens.push_back({L_Bracket, "["}); advance(); break;
+            case ']': Tokens.push_back({R_Bracket, "]"}); advance(); break;
             case '"': Tokens.push_back({STRING, readString()}); break;
             case ':': Tokens.push_back({Colon, ":"}); advance(); break;
             case ',': Tokens.push_back({Comma, ","}); advance(); break;
@@ -129,13 +132,66 @@ struct JsonValue{
     Value value;
 };
 
-JsonValue JsonRoot;
-
 class Parser {
     public:
+        JsonValue JsonRoot;
+        Parser(){
+            JsonRoot = Parse();
+        }
+
+        JsonValue Parse(){
+            if(pos >= Tokens.size()){
+            }
+            switch (checkNext().type){
+            case L_Brace: return parseObject();
+            case L_Bracket: return parseArray();
+            case STRING: return parseString();
+            case NUMBER: return parseNumber();
+            case True: return parseBool();
+            case False: return parseBool();
+            case NULL: return parseNull();
+            default:
+                break;
+            }
+        }
+
 
 
     private:
+        int pos=0;
+        bool EndOFStructure = false;
+        std::stack<type_t>openBraces;
+
+        Token nextToken(){
+            return  Tokens.at(pos++);
+        }
+
+        Token checkNext(){
+            return Tokens.at(pos);
+        }
+
+        void stackCheck(type_t type){
+        
+        }
+
+        JsonValue parseArray(){
+
+        }
+        JsonObject parseObject(){
+            JsonObject obj;
+            if(checkNext().type == L_Brace){
+                nextToken();
+            }
+            
 
 
-}
+        }
+        JsonValue parsePrimitive(Token token){
+            switch (token.type){
+                case STRING: 
+            }
+        }
+
+
+
+};
