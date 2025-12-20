@@ -5,6 +5,9 @@
 #include <variant>
 #include <fstream>
 #include <stack>
+#include <unordered_map>
+
+#define NULL 0
 
 using type_t = enum
 {
@@ -41,6 +44,10 @@ public:
             Tokenizer();
         }
     }
+    
+    ~Lexer(){
+        in.close();
+    }
 
     void Tokenizer(){
         while(peek() != EOF){
@@ -57,6 +64,7 @@ public:
             case ' ': skipWL(); break;
             case 't': Tokens.push_back({True, "true"}); advance(4); break;
             case 'f': Tokens.push_back({False, "false"}); advance(5); break;
+            case 'n': Tokens.push_back({NULLT, "0"}); advance(5); break;
             case '-': Tokens.push_back({NUMBER, readNumber()}); break;
             case '\n': skipWL(); break;
             case '\r': skipWL(); break;
@@ -86,16 +94,16 @@ private:
 
     char peek(){
         return in.peek();
-    };
+    }
 
     void advance(int n=1){
         while(n){
             in.get(); 
             n--;
-            line++;
-            std::cout<<"line"<<line<<"\n";
+            col++;
+            std::cout<<"line"<<col<<"\n";
         }
-    };
+    }
 
     std::string readString(){
         advance();
@@ -116,6 +124,7 @@ private:
 
     void skipWL(){
         while(std::isspace(peek())){
+            if(peek() == '\n') line++; col=0;
             in.get();
         }
     }
@@ -125,7 +134,7 @@ private:
 
 struct JsonValue;
 using JsonArray = std::vector<JsonValue>;
-using JsonObject = std::vector<std::pair<std::string, JsonValue>>;
+using JsonObject = std::unordered_map<std::string, JsonValue>;
 using JsonValue = std::variant<int, double, bool, std::string, JsonArray, JsonObject>;
 
 
@@ -146,13 +155,13 @@ class Parser {
             case NUMBER: return parseNumber();
             case True: return parseBool();
             case False: return parseBool();
-            case NULL: return parseNull();
+            case NULLT: return parseNull();
             default:
+                throw std::runtime_error("Parser couldnt find the specific token");
                 break;
             }
         }
-
-
+        
 
     private:
         int pos=0;
@@ -161,6 +170,14 @@ class Parser {
 
         Token nextToken(){
             return  Tokens.at(pos++);
+        }
+        
+        void consume(type_t t){
+            if(nextToken().type != t){
+                throw std::runtime_error("Expected type wasnt found");
+            }else{
+                pos++;
+            }
         }
 
         Token checkNext(){
@@ -173,28 +190,40 @@ class Parser {
 
         JsonArray parseArray(){
 
-        };
+        }
 
         JsonObject parseObject(){
             JsonObject obj;
             if(checkNext().type == L_Brace){
                 nextToken();
             }
-            while(){
+            while(checkNext().type != R_Brace){
+                Token t=nextToken();
+                std::string name = parseString();
+                consume(Colon);
+                JsonValue value = Parse();
 
+                obj[name] = "hello";
             }
-        };
+            consume(R_Brace);
+            return obj;
+        }
 
         std::string parseString(){
 
-        };
-        
-        JsonValue parsePrimitive(Token token){
-            switch (token.type){
-                case STRING: 
-            }
+        }
+
+        JsonValue parseNumber(){
+
+        }
+
+        int parseNull(){
+            return NULL;
         }
 
 
+        bool parseBool(){
+
+        }
 
 };
