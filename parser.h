@@ -126,11 +126,8 @@ private:
 struct JsonValue;
 using JsonArray = std::vector<JsonValue>;
 using JsonObject = std::vector<std::pair<std::string, JsonValue>>;
-using Value = std::variant<int, double, bool, std::string, JsonArray, JsonObject>;
+using JsonValue = std::variant<int, double, bool, std::string, JsonArray, JsonObject>;
 
-struct JsonValue{
-    Value value;
-};
 
 class Parser {
     public:
@@ -174,18 +171,24 @@ class Parser {
         
         }
 
-        JsonValue parseArray(){
+        JsonArray parseArray(){
 
-        }
+        };
+
         JsonObject parseObject(){
             JsonObject obj;
             if(checkNext().type == L_Brace){
                 nextToken();
             }
-            
+            while(){
 
+            }
+        };
 
-        }
+        std::string parseString(){
+
+        };
+        
         JsonValue parsePrimitive(Token token){
             switch (token.type){
                 case STRING: 
