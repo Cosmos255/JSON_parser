@@ -4,7 +4,6 @@
 #include <vector>
 #include <variant>
 #include <fstream>
-#include <stack>
 #include <format>
 #include <unordered_map>
 
@@ -162,13 +161,13 @@ class Parser {
             if(pos >= Tokens.size()){
             }
             switch (checkNext().type){
-            case L_Brace: return parseObject();
-            case L_Bracket: return parseArray();
-            case STRING: return parseString();
-            case NUMBER: return parseNumber();
-            case True: return parseBool();
-            case False: return parseBool();
-            case NULLT: return parseNull();
+            case L_Brace: return parseObject(); break;
+            case L_Bracket: return parseArray(); break;
+            case STRING: return parseString(); break;
+            case NUMBER: return parseNumber(); break;
+            case True: return parseBool(); break;
+            case False: return parseBool(); break;
+            case NULLT: return parseNull(); break;
             default:
                 throw std::runtime_error("Parser couldnt find the specific token");
                 break;
@@ -177,17 +176,30 @@ class Parser {
         
 
     private:
-        long long unsigned pos=0;
-        bool EndOFStructure = false;
-        std::stack<type_t>openBraces;
+        long unsigned pos=0;
+
+		void error(type_t t){
+			switch (t){
+				case STRING: throw std::runtime_error("Expected token STRING was not found");
+				case True: throw std::runtime_error("Expected token True was not found");
+				case L_Brace: throw std::runtime_error("Expected token { was not found");
+				case L_Bracket: throw std::runtime_error("Expected token [ was not found");
+				case R_Bracket: throw std::runtime_error("Expected token ] was not found");
+				case R_Brace: throw std::runtime_error("Expected token } was not found");
+				case NUMBER: throw std::runtime_error("Expected token NUMBER was not found");
+				case Comma: throw std::runtime_error("Expected token , was not found");
+				case Colon: throw std::runtime_error("Expected token : was not found");
+				case NULLT: throw std::runtime_error("Expected token NULL was not found");
+			}
+		}
 
         Token nextToken(){
-            return  Tokens.at(pos++);
+            return Tokens.at(pos++);
         }
-        
+
         void consume(type_t t){
             if(nextToken().type != t){
-                throw std::runtime_error("Expected type wasnt found");
+                error(t);
             }else{
                 pos++;
             }
@@ -195,10 +207,6 @@ class Parser {
 
         Token checkNext(){
             return Tokens.at(pos);
-        }
-
-        void stackCheck(type_t type){
-        
         }
 
         JsonArray parseArray(){
@@ -230,20 +238,36 @@ class Parser {
         }
 
         std::string parseString(){
-
+			if(checkNext().type != STRING){
+				error(STRING);
+			}
+			return nextToken().value;
         }
 
-        JsonValue parseNumber(){
-
+        double parseNumber(){
+			Token t = nextToken();
+			if(t.type != NUMBER){
+				error(NUMBER);
+			}
+			return std::stod(t.value);
         }
 
         int parseNull(){
+			if(nextToken().type != NULLT){
+				error(NULLT);
+			}
             return NULL;
         }
 
 
         bool parseBool(){
-
+			Token t = nextToken();
+			if(t.type == True){
+				return false;
+			}else if(t.type == False){
+				return true;
+			}
+			error(True);
         }
 
 };
