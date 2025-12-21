@@ -5,11 +5,11 @@
 #include <variant>
 #include <fstream>
 #include <stack>
+#include <memory>
 #include <unordered_map>
 
 #define NULL 0
-
-using type_t = enum
+enum type_t
 {
     L_Brace,
     R_Brace,
@@ -124,7 +124,10 @@ private:
 
     void skipWL(){
         while(std::isspace(peek())){
-            if(peek() == '\n') line++; col=0;
+            if(peek() == '\n'){
+                line++; 
+				col=0;
+            }
             in.get();
         }
     }
@@ -135,14 +138,25 @@ private:
 struct JsonValue;
 using JsonArray = std::vector<JsonValue>;
 using JsonObject = std::unordered_map<std::string, JsonValue>;
-using JsonValue = std::variant<int, double, bool, std::string, JsonArray, JsonObject>;
+
+
+struct JsonValue{
+    using Value = std::variant<int, double, bool, std::string, JsonArray, JsonObject>;
+	Value data;
+
+	JsonValue() = default;
+
+	template <typename T>
+	JsonValue(T&& v): data(std::forward<T(v)) {}
+
+};
 
 
 class Parser {
     public:
-        JsonValue JsonRoot;
+        JsonValue root;
         Parser(){
-            JsonRoot = Parse();
+            root = Parse();
         }
 
         JsonValue Parse(){
@@ -164,7 +178,7 @@ class Parser {
         
 
     private:
-        int pos=0;
+        long long unsigned pos=0;
         bool EndOFStructure = false;
         std::stack<type_t>openBraces;
 
@@ -203,7 +217,7 @@ class Parser {
                 consume(Colon);
                 JsonValue value = Parse();
 
-                obj[name] = "hello";
+                //obj[name] = value;
             }
             consume(R_Brace);
             return obj;
