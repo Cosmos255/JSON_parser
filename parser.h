@@ -5,7 +5,7 @@
 #include <variant>
 #include <fstream>
 #include <stack>
-#include <memory>
+#include <format>
 #include <unordered_map>
 
 #define NULL 0
@@ -75,9 +75,8 @@ public:
                 if(isdigit(peek())){
                     Tokens.push_back({NUMBER, readNumber()});
                 }else{
-                    std::cout<<"defaulted";
-                    std::cerr<<"\n"<<peek()<<"\t"<<in.peek()<<"\n";
-                    throw std::runtime_error("Yea you shouldn be here");
+					std::string error = std::format("The token couldnt be detected Line:{} Col{} Token{}",line,col,peek());
+                    throw std::runtime_error(error);
                 }
             }
         }
@@ -204,23 +203,21 @@ class Parser {
 
         JsonArray parseArray(){
 			JsonArray arr;
-			if(checkNext().type == L_Bracket){
-				nextToken();
-			}else{
-				throw std::runtime_error("Expected bracket is missing");
+			consume(L_Bracket);
+			std::string name = parseString();
+			consume(Colon);
+			while(checkNext().type != R_Bracket){
+				JsonValue value = Parse();
+				if(checkNext().type != Comma) break;
+				consume(Comma);
 			}
-
+			consume(R_Bracket);
         }
 
         JsonObject parseObject(){
             JsonObject obj;
-            if(checkNext().type == L_Brace){
-                nextToken();
-            }else{
-				throw std::runtime_error("Expected Brace is missing");
-			}
+			consume(L_Brace);
             while(checkNext().type != R_Brace){
-                Token t=nextToken();
                 std::string name = parseString();
                 consume(Colon);
                 JsonValue value = Parse();
