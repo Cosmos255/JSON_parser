@@ -203,6 +203,12 @@ class Parser {
         }
 
         JsonArray parseArray(){
+			JsonArray arr;
+			if(checkNext().type == L_Bracket){
+				nextToken();
+			}else{
+				throw std::runtime_error("Expected bracket is missing");
+			}
 
         }
 
@@ -210,14 +216,17 @@ class Parser {
             JsonObject obj;
             if(checkNext().type == L_Brace){
                 nextToken();
-            }
+            }else{
+				throw std::runtime_error("Expected Brace is missing");
+			}
             while(checkNext().type != R_Brace){
                 Token t=nextToken();
                 std::string name = parseString();
                 consume(Colon);
                 JsonValue value = Parse();
-
-                //obj[name] = value;
+				obj[name] = value;
+				if(checkNext().type != Comma) break;
+				consume(Comma);
             }
             consume(R_Brace);
             return obj;
