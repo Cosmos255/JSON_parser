@@ -11,6 +11,7 @@
 
 
 #define NULL 0
+
 enum type_t
 {
     L_Brace,
