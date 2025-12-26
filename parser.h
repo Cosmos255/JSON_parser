@@ -3,171 +3,27 @@
 #include <string>
 #include <vector>
 #include <variant>
-#include <fstream>
 #include <format>
 #include <unordered_map>
-
-#define NULL 0
-enum type_t
-{
-    L_Brace,
-    R_Brace,
-    L_Bracket,
-    R_Bracket,
-    Colon,
-    Comma,
-    NUMBER,
-    STRING,
-    NULLT,
-    True,
-    False,
-};
-
-struct Token
-{
-    type_t type;
-    std::string value;
-
-};
-
-std::vector<Token> Tokens;
-
-
-class Lexer {
-public: 
-    Lexer(const std::string& filename): in(filename),line(1),col(1){
-        if(!in){
-            std::cerr<<"No existing files found";
-            throw std::runtime_error("FIle not found");
-        }else{
-            Tokenizer();
-        }
-    }
-    
-    ~Lexer(){
-        in.close();
-    }
-
-    void Tokenizer(){
-        while(peek() != EOF){
-            //Token token_t;
-
-            switch (peek()){
-            case '{': Tokens.push_back({L_Brace, "{"}); advance(); break;
-            case '}': Tokens.push_back({R_Brace, "}"}); advance(); break;
-            case '[': Tokens.push_back({L_Bracket, "["}); advance(); break;
-            case ']': Tokens.push_back({R_Bracket, "]"}); advance(); break;
-            case '"': Tokens.push_back({STRING, readString()}); break;
-            case ':': Tokens.push_back({Colon, ":"}); advance(); break;
-            case ',': Tokens.push_back({Comma, ","}); advance(); break;
-            case ' ': skipWL(); break;
-            case 't': Tokens.push_back({True, "true"}); advance(4); break;
-            case 'f': Tokens.push_back({False, "false"}); advance(5); break;
-            case 'n': Tokens.push_back({NULLT, "0"}); advance(5); break;
-            case '-': Tokens.push_back({NUMBER, readNumber()}); break;
-            case '\n': skipWL(); break;
-            case '\r': skipWL(); break;
-            case '\t': skipWL(); break;
-            case '\b': skipWL(); break;
-            case '\f': skipWL(); break;
-            default:
-                if(isdigit(peek())){
-                    Tokens.push_back({NUMBER, readNumber()});
-                }else{
-					std::string error = std::format("The token couldnt be detected Line:{} Col{} Token{}",line,col,peek());
-                    throw std::runtime_error(error);
-                }
-            }
-        }
-        std::cout<<"We finished";
-        for (const auto& t : Tokens) {
-            std::cout << "Type: " << t.type
-                    << "  Value: [" << t.value << "]\n";
-        }
-    }
-
-private:
-    std::ifstream in;
-    int line, col;
-
-    char peek(){
-        return in.peek();
-    }
-
-    void advance(int n=1){
-        while(n){
-            in.get(); 
-            n--;
-            col++;
-            std::cout<<"line"<<col<<"\n";
-        }
-    }
-
-    std::string readString(){
-        advance();
-        std::string data;
-        std::getline(in, data, '"');
-        return data;
-    }
-
-    std::string readNumber(){
-        char c = peek();
-        std::string data;
-        while(isdigit(c) || c == '-' || c=='E' || c=='e' || c=='.' || c=='+'){
-            data +=in.get();
-            c = peek();
-        }
-        return data;
-    }
-
-    void skipWL(){
-        while(std::isspace(peek())){
-            if(peek() == '\n'){
-                line++; 
-				col=0;
-            }
-            in.get();
-        }
-    }
-
-};
-
-
-struct JsonValue;
-using JsonArray = std::vector<JsonValue>;
-using JsonObject = std::unordered_map<std::string, JsonValue>;
-
-
-struct JsonValue{
-    using Value = std::variant<int, double, bool, std::string, JsonArray, JsonObject>;
-	Value data;
-
-	JsonValue() = default;
-
-	template <typename T>
-	JsonValue(T&& v): data(std::forward<T(v)) {}
-
-};
-
+#include "json_types.h"
 
 class Parser {
-    public:
-        JsonValue root;
-        Parser(){
-            root = Parse();
-        }
+    const std::vector<Token>& Tokens;
 
-        JsonValue Parse(){
+    public:
+        Parser(const std::vector<Token>& t) : Tokens(t){};
+
+        JsonValue parse(){
             if(pos >= Tokens.size()){
             }
             switch (checkNext().type){
-            case L_Brace: return parseObject(); break;
-            case L_Bracket: return parseArray(); break;
-            case STRING: return parseString(); break;
-            case NUMBER: return parseNumber(); break;
-            case True: return parseBool(); break;
-            case False: return parseBool(); break;
-            case NULLT: return parseNull(); break;
+            case L_Brace: return JsonValue{parseObject()}; break;
+            case L_Bracket: return JsonValue{parseArray()}; break;
+            case STRING: return JsonValue{parseString()}; break;
+            case NUMBER: return JsonValue{parseNumber()}; break;
+            case True: return JsonValue{parseBool()}; break;
+            case False: return JsonValue{parseBool()}; break;
+            case NULLT: return JsonValue{parseNull()}; break;
             default:
                 throw std::runtime_error("Parser couldnt find the specific token");
                 break;
@@ -200,8 +56,6 @@ class Parser {
         void consume(type_t t){
             if(nextToken().type != t){
                 error(t);
-            }else{
-                pos++;
             }
         }
 
@@ -215,11 +69,12 @@ class Parser {
 			std::string name = parseString();
 			consume(Colon);
 			while(checkNext().type != R_Bracket){
-				JsonValue value = Parse();
+				JsonValue value = parse();
 				if(checkNext().type != Comma) break;
 				consume(Comma);
 			}
 			consume(R_Bracket);
+            return arr;
         }
 
         JsonObject parseObject(){
@@ -228,7 +83,7 @@ class Parser {
             while(checkNext().type != R_Brace){
                 std::string name = parseString();
                 consume(Colon);
-                JsonValue value = Parse();
+                JsonValue value = parse();
 				obj[name] = value;
 				if(checkNext().type != Comma) break;
 				consume(Comma);
@@ -269,5 +124,4 @@ class Parser {
 			}
 			error(True);
         }
-
 };

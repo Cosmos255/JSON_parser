@@ -2,12 +2,15 @@
 #include <unordered_map>
 #include <vector>
 #include <string>
-#include <ostream>
-#include "parser.h"
-
+#include "json.h"
 
 int main(){
-    Lexer("test.json");
-   // return 0;
+
+   JsonValue root = json::parseJson("test.json");
+
+
+   return 0;
 }
+
+
 
