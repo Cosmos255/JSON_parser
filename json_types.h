@@ -43,11 +43,31 @@ struct JsonValue{
     using Value = std::variant<int, double, bool, std::string, JsonArray, JsonObject>;
 	Value data;
 
-	//JsonValue() = default;
-
-	//template <typename T>
-	//JsonValue(T&& v): data(std::forward<T(v)) {}
+    JsonValue &at(const std::string &key);
+    template <typename T>
+    T &as();
 
 };
 
+template <typename T>
+T &JsonValue::as(){
+    if (auto* p = std::get_if<T>(&data))
+        return *p;
+    throw std::runtime_error("wrong type");
+}
+
+
+JsonValue& JsonValue::at(const std::string &key){
+    auto obj = std::get<JsonObject>(data);
+    auto it = obj.find(key); // find returns a pointer 
+    if(it==obj.end()) throw std::runtime_error("Key " + key + "not found");
+    return it->second;
+}
+
+
+
 JsonValue root;
+
+
+
+

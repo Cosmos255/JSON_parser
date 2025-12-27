@@ -7,11 +7,9 @@
 int main(){
 
    JsonValue root = json::parseJson("test.json");
-   auto &student = json::get<JsonObject>(root); 
+   auto &student = root;
 
-   auto name = json::get<std::string>(student["name"]);
-
-
+   auto name = student.at("name").as<std::string>();
 
    std::cout << "Name: " << name << "\n";
    
