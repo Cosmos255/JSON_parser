@@ -49,7 +49,7 @@ class Parser {
 			}
 		}
 
-        Token nextToken(){
+        const Token& nextToken(){
             return Tokens.at(pos++);
         }
 
@@ -59,7 +59,7 @@ class Parser {
             }
         }
 
-        Token checkNext(){
+        const Token& checkNext(){
             return Tokens.at(pos);
         }
 
@@ -113,7 +113,6 @@ class Parser {
 			}
             return NULL;
         }
-
 
         bool parseBool(){
 			Token t = nextToken();

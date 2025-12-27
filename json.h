@@ -15,6 +15,7 @@
 
 
 namespace json {
+    //input must be a file
 
     inline JsonValue parseJson(const std::string input){
         try{

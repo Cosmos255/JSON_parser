@@ -53,11 +53,6 @@ public:
                 }
             }
         }
-        std::cout<<"We finished";
-        for (const auto& t : Tokens) {
-            std::cout << "Type: " << t.type
-                    << "  Value: [" << t.value << "]\n";
-        }
     }
 
 private:
@@ -69,11 +64,9 @@ private:
     }
 
     void advance(int n=1){
-        while(n){
+        while(n--){
             in.get(); 
-            n--;
             col++;
-            std::cout<<"line"<<col<<"\n";
         }
     }
 
