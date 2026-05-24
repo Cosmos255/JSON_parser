@@ -35,11 +35,11 @@ example:
    auto root = json::parseJson("test.json");
    auto pc = root;
    
-   auto cpu = pc.at("specs").at("cpu").as<std::string>();
+   auto cpu = pc.at("specs").at("cpu").as\<std::string>\();
 
   or you might prefer this, both work
 
-  cpu = pc["specs"]["cpu"].as<std::string>();
+  cpu = pc["specs"]["cpu"].as\<std::string>\();
 
 #########################################################
 
