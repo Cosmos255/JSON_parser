@@ -47,6 +47,8 @@ struct JsonValue{
     template <typename T>
     T &as();
 
+    JsonValue &operator[](const std::string &key);
+
 };
 
 template <typename T>
@@ -56,9 +58,12 @@ T &JsonValue::as(){
     throw std::runtime_error("wrong type");
 }
 
+JsonValue& JsonValue::operator[](const std::string &key){
+    return at(key);
+}
 
 JsonValue& JsonValue::at(const std::string &key){
-    auto obj = std::get<JsonObject>(data);
+    auto &obj = std::get<JsonObject>(data);
     auto it = obj.find(key); // find returns a pointer 
     if(it==obj.end()) throw std::runtime_error("Key " + key + "not found");
     return it->second;

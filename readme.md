@@ -2,7 +2,7 @@ A C++ JSON parser which works good enough.
 
 Main Features:
 Its quite slow like really slow:(
-Type safety is optional(theres no yes option)
+Type safety is optional(no yes option included)
 It might leak memory i hope not but it is what it is
 Its a bit janky but it works
 
@@ -37,9 +37,15 @@ example:
 int main(){
    
    auto root = json::parseJson("test.json");
-   auto pc = root.as<JsonObject>();
+   auto pc = root;
    
-   auto cpu = pc.at("specs").as<JsonObject>().at("cpu").as<std::string>();
+   auto cpu = pc.at("specs").at("cpu").as<std::string>();
+
+  or you might prefer this, both work
+
+  cpu = pc["specs"]["cpu"].as<std::string>();
+
+
 
    std::cout<<"the cpu is"<<cpu;
 
