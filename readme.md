@@ -10,7 +10,9 @@ Its a bit janky but it works
 USAGE:
 
 include the  "json.h" header then create a auto variable named root then use the 
-function json::parseJson(input) input must be a file then you can access members using .at(name) and .as for types also you must have included <vetor>, <string> and <unordered_map>;
+function json::parseJson(input) input must be a file then you can access members 
+using .at(name) and .as for types also you must have included <vetor>, <string> and <unordered_map>;
+
 
 example:
 
@@ -28,14 +30,8 @@ example:
 }
 
 
-#include <iostream>
-#include <unordered_map>
-#include <vector>
-#include <string>
-#include "json.h"
+########################################################
 
-int main(){
-   
    auto root = json::parseJson("test.json");
    auto pc = root;
    
@@ -45,11 +41,6 @@ int main(){
 
   cpu = pc["specs"]["cpu"].as<std::string>();
 
-
-
-   std::cout<<"the cpu is"<<cpu;
-
-   return 0;
-}
+#########################################################
 
 Have fun!!!
